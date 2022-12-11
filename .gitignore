@@ -6,3 +6,6 @@
 /cache
 *.pth
 .idea
+
+# data
+data
