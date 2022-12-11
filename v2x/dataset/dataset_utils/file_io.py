@@ -4,7 +4,7 @@ Author: HCQ
 Company(School): UCAS
 Email: 1756260160@qq.com
 Date: 2022-12-10 16:52:26
-LastEditTime: 2022-12-11 17:15:52
+LastEditTime: 2022-12-11 17:34:28
 FilePath: \DAIR-V2X\v2x\dataset\dataset_utils\file_io.py
 '''
 import json
@@ -35,6 +35,11 @@ def load_pkl(path):
 def save_pkl(item, path):
     with open(path, "wb") as f:
         pickle.dump(item, f)
+# 保存json
+def save_json(item, path):
+    with open(path, "w") as f:
+        json.dump(item, f)
+
 
 
 def read_pcd(pcd_path):

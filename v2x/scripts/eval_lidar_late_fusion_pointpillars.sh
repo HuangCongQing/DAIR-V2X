@@ -31,7 +31,7 @@ python eval.py \
   --model $FUSION_METHOD \ # veh_only,inf_only,late_fusion,early_fusion
   --dataset vic-async \ #  Choices are dair-v2x-v, dair-v2x-i,vic-sync and vic-async.
   --k $DELAY_K \  # 2 the number of previous frames for vic-async dataset. vic-async-0 is equivalent to vic-sync dataset.
-  --split val \
+  --split val \ # val test_A
   --split-data-path $SPLIT_DATA_PATH \
   --inf-config-path $INFRA_MODEL_PATH/$INFRA_CONFIG_NAME \
   --inf-model-path $INFRA_MODEL_PATH/$INFRA_MODEL_NAME \

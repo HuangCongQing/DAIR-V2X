@@ -1,3 +1,12 @@
+'''
+Description: 
+Author: HCQ
+Company(School): UCAS
+Email: 1756260160@qq.com
+Date: 2022-12-10 16:52:26
+LastEditTime: 2022-12-11 17:35:19
+FilePath: \DAIR-V2X\v2x\models\model_utils\channel.py
+'''
 import numpy as np
 import sys
 
@@ -31,6 +40,10 @@ class Channel(object):
 
     def receive(self, key):
         return self.data[key] if key in self.data else None
+
+    # 当前AB
+    def current_bytes(self):
+        return self.cur_bytes
 
     def average_bytes(self):
         num_frames = self.num_frames if len(self.data) == 0 else self.num_frames + 1

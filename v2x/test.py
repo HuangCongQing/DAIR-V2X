@@ -13,20 +13,18 @@ logger = logging.getLogger(__name__)
 from tqdm import tqdm
 import numpy as np
 
-from v2x_utils import range2box, id_to_str, Evaluator
+from v2x_utils import range2box, id_to_str
 from config import add_arguments
 from dataset import SUPPROTED_DATASETS
-from dataset.dataset_utils import save_pkl
+from dataset.dataset_utils import save_pkl, save_json
 from models import SUPPROTED_MODELS
 from models.model_utils import Channel
 
 
-def eval_vic(args, dataset, model, evaluator):
+def test_vic(args, dataset, model):
     idx = -1
-    for VICFrame, label, filt in tqdm(dataset):
+    for VICFrame, filt in tqdm(dataset):
         idx += 1
-        # if idx % 10 != 0:
-        #     continue
         try:
             veh_id = dataset.data[idx][0]["vehicle_pointcloud_path"].split("/")[-1].replace(".pcd", "")
         except Exception:
@@ -37,29 +35,35 @@ def eval_vic(args, dataset, model, evaluator):
             filt,
             None if not hasattr(dataset, "prev_inf_frame") else dataset.prev_inf_frame,
         )
-        # 将每帧的预测结果叠加
-        evaluator.add_frame(pred, label)
-        pipe.flush()
-        pred["label"] = label["boxes_3d"]
+
         pred["veh_id"] = veh_id
-        save_pkl(pred, osp.join(args.output, "result", pred["veh_id"] + ".pkl"))
+        pred_dict = {
+            "boxes_3d": pred["boxes_3d"].tolist(),
+            "labels_3d": pred["labels_3d"].tolist(),
+            "scores_3d": pred["scores_3d"].tolist(),
+            # "ab_cost": pipe.perframe_bytes(),
+            "ab_cost": pipe.current_bytes(),
+        }
+        pipe.flush()
+        not_car_index_list = []
+        for i in range(len(pred_dict["labels_3d"])):
+            if pred_dict["labels_3d"][i] != 2:
+                not_car_index_list.append(i)
+        not_car_index_list.reverse()
+        for index in not_car_index_list:
+                pred_dict["boxes_3d"].pop(index)
+                pred_dict["labels_3d"].pop(index)
+                pred_dict["scores_3d"].pop(index)
+        
+        # 保存json文件输出
+        save_json(pred_dict, osp.join(args.output, "result", pred["veh_id"] + ".json"))
+        # save_pkl(pred, osp.join(args.output, "result", pred["veh_id"] + ".pkl"))
 
-    evaluator.print_ap("3d")
-    evaluator.print_ap("bev")
-    print("Average Communication Cost = %.2lf Bytes" % (pipe.average_bytes()))
 
-
-def eval_single(args, dataset, model, evaluator):
-    for frame, label, filt in tqdm(dataset):
+def test_single(args, dataset, model):
+    for frame, filt in tqdm(dataset):
         pred = model(frame, filt)
-        if args.sensortype == "camera":
-            evaluator.add_frame(pred, label["camera"])
-        elif args.sensortype == "lidar":
-            evaluator.add_frame(pred, label["lidar"])
-        save_pkl({"boxes_3d": label["lidar"]["boxes_3d"]}, osp.join(args.output, "result", frame.id["camera"] + ".pkl"))
-
-    evaluator.print_ap("3d")
-    evaluator.print_ap("bev")
+        save_pkl(pred, osp.join(args.output, "result", frame.id["camera"] + ".pkl"))
 
 
 if __name__ == "__main__":
@@ -85,7 +89,6 @@ if __name__ == "__main__":
     extended_range = range2box(np.array(args.extended_range))
     logger.info("loading dataset")
 
-    # 1 支持的数据  v2x\dataset\__init__.py
     dataset = SUPPROTED_DATASETS[args.dataset](
         args.input,
         args,
@@ -94,16 +97,11 @@ if __name__ == "__main__":
         extended_range=extended_range,
     )
 
-    logger.info("loading evaluator")
-    evaluator = Evaluator(args.pred_classes)
-
     logger.info("loading model")
     if args.eval_single:
         model = SUPPROTED_MODELS[args.model](args)
-        eval_single(args, dataset, model, evaluator)
+        test_single(args, dataset, model)
     else:
-        # 默认运行车路协同VIC
-        pipe = Channel() # v2x\models\model_utils\channel.py
-        # 支持的模型
+        pipe = Channel()
         model = SUPPROTED_MODELS[args.model](args, pipe)
-        eval_vic(args, dataset, model, evaluator)
+        test_vic(args, dataset, model)
