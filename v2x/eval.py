@@ -101,6 +101,7 @@ if __name__ == "__main__":
         model = SUPPROTED_MODELS[args.model](args)
         eval_single(args, dataset, model, evaluator)
     else:
+        # 默认运行车路协同VIC
         pipe = Channel()
         model = SUPPROTED_MODELS[args.model](args, pipe)
         eval_vic(args, dataset, model, evaluator)
