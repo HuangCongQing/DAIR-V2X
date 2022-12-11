@@ -261,6 +261,7 @@ class Evaluator(object):
                 self.all_preds["bev"][pred_class][iou] = []
                 self.gt_num[pred_class][iou] = 0
 
+    # 将每帧的预测结果叠加
     def add_frame(self, pred, label):
         for pred_class in self.pred_classes:
             for iou in iou_threshold_dict[pred_class]:

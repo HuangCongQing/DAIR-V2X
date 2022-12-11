@@ -37,7 +37,7 @@ def eval_vic(args, dataset, model, evaluator):
             filt,
             None if not hasattr(dataset, "prev_inf_frame") else dataset.prev_inf_frame,
         )
-
+        # 将每帧的预测结果叠加
         evaluator.add_frame(pred, label)
         pipe.flush()
         pred["label"] = label["boxes_3d"]
