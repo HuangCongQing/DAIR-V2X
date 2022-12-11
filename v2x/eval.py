@@ -85,6 +85,7 @@ if __name__ == "__main__":
     extended_range = range2box(np.array(args.extended_range))
     logger.info("loading dataset")
 
+    # 1 支持的数据  v2x\dataset\__init__.py
     dataset = SUPPROTED_DATASETS[args.dataset](
         args.input,
         args,
@@ -103,5 +104,6 @@ if __name__ == "__main__":
     else:
         # 默认运行车路协同VIC
         pipe = Channel()
+        # 支持的模型
         model = SUPPROTED_MODELS[args.model](args, pipe)
         eval_vic(args, dataset, model, evaluator)

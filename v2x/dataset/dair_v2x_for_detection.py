@@ -222,6 +222,7 @@ class VICSyncDataset(VICDataset):
         return len(self.data)
 
 
+# 异步融合main
 class VICAsyncDataset(VICDataset):
     def __init__(self, path, args, split="train", sensortype="lidar", extended_range=None):
         super().__init__(path, args, split, sensortype, extended_range)
@@ -247,6 +248,7 @@ class VICAsyncDataset(VICDataset):
         return len(self.async_data)
 
     def prev_inf_frame(self, index, sensortype="lidar"):
+        # 雷达
         if sensortype == "lidar":
             cur = self.inf_path2info["infrastructure-side/velodyne/" + index + ".pcd"]
             if (
@@ -259,6 +261,7 @@ class VICAsyncDataset(VICDataset):
                 InfFrame(self.path + "/infrastructure-side/", prev),
                 (int(cur["pointcloud_timestamp"]) - int(prev["pointcloud_timestamp"])) / 1000.0,
             )
+        # 相机
         elif sensortype == "camera":
             cur = self.inf_path2info["infrastructure-side/image/" + index + ".jpg"]
             if int(index) - self.k < int(cur["batch_start_id"]):
@@ -276,7 +279,7 @@ if __name__ == "__main__":
     import numpy as np
 
     input = "../data/cooperative-vehicle-infrastructure/"
-    split = "val"
+    split = "val" # 验证集
     sensortype = "camera"
     box_range = np.array([-10, -49.68, -3, 79.12, 49.68, 1])
     indexs = [

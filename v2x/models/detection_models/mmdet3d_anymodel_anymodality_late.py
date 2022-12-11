@@ -202,6 +202,7 @@ class LateFusionVeh(nn.Module):
         self.model = None
         self.args = args
 
+    # 预测
     def pred(self, frame, trans, pred_filter):
         if self.args.sensortype == "lidar":
             id = frame.id["lidar"]
@@ -270,6 +271,7 @@ class LateFusionVeh(nn.Module):
         else:
             save_data = np.array([])
 
+        # 得到预测字典dict
         pred_dict = gen_pred_dict(
             id,
             frame_timestamp,
@@ -279,7 +281,7 @@ class LateFusionVeh(nn.Module):
             result[0]["scores_3d"].tolist(),
             result[0]["labels_3d"].tolist(),
         )
-        save_pkl(pred_dict, path)
+        save_pkl(pred_dict, path) # 保存pkl
 
         return pred_dict, id
 
@@ -296,7 +298,7 @@ class LateFusionVeh(nn.Module):
             pred_dict, id = self.pred(data, trans, pred_filter)
         return pred_dict, id
 
-
+# 后融合模型main入口
 class LateFusion(BaseModel):
     def add_arguments(parser):
         parser.add_argument("--inf-config-path", type=str, default="")

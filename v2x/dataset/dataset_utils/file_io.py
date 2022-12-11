@@ -1,3 +1,12 @@
+'''
+Description: 文件加载和保存
+Author: HCQ
+Company(School): UCAS
+Email: 1756260160@qq.com
+Date: 2022-12-10 16:52:26
+LastEditTime: 2022-12-11 17:15:52
+FilePath: \DAIR-V2X\v2x\dataset\dataset_utils\file_io.py
+'''
 import json
 import yaml
 import pickle
@@ -22,7 +31,7 @@ def load_pkl(path):
     with open(path, "rb") as f:
         return pickle.load(f)
 
-
+# 保存pkl
 def save_pkl(item, path):
     with open(path, "wb") as f:
         pickle.dump(item, f)
